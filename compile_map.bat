@@ -1,6 +1,6 @@
 @echo off
 set CompileResolution=%1
-set MapDirectory="%~2"
+set MapDirectory="%~3"
 set "MapName=%MapDirectory:\=" & set MapName=%"
 set MapName=%MapName:"=%
 TITLE Compiling %MapName:"=%
