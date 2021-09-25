@@ -3,8 +3,8 @@ setlocal enabledelayedexpansion
 TITLE Batch Map Compiler
 
 :: Custom directories if you don't want to manually put in your game directory
-set customhladirectory=O:\Games\SteamLibrary\steamapps\common\Half-Life Alyx
-set customsboxdirectory=O:\Games\SteamLibrary\steamapps\common\sbox
+set customhladirectory=
+set customsboxdirectory=
 ::set customsteamvrdirectory=
 ::set customdota2directory=
 
