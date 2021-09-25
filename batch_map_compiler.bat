@@ -5,7 +5,7 @@ TITLE Batch Map Compiler
 :: Custom directories if you don't want to manually put in your game directory
 set customhladirectory=
 set customsboxdirectory=
-::set customsteamvrdirectory=
+set customsteamvrdirectory=
 ::set customdota2directory=
 
 goto gamequestions
@@ -15,8 +15,8 @@ goto gamequestions
 echo What game are you compiling for?
 echo 1: Half-Life: Alyx
 echo 2: s^&box
-echo (SteamVR, and Dota 2 compiling will be supported soon.)
-::echo 3: SteamVR
+echo 3: SteamVR
+echo (Dota 2 compiling will be supported soon.)
 ::echo 4: Dota 2
 echo.
 set /P GameName=
@@ -39,7 +39,10 @@ if %GameName%==2 (
     echo s^&box
     goto compileresolution
 ) 
-::if %GameName%==3 (echo SteamVR)
+if %GameName%==3 (
+    echo SteamVR
+    goto compileresolution
+)
 ::if %GameName%==4 (echo Dota 2)
 :: Wrong number? Restart.
 echo.
@@ -97,7 +100,7 @@ goto compileresolution
 :: Go through the choices again
 if %GameName%==1 (goto compilehla)
 if %GameName%==2 (goto compilesbox) 
-::if %GameName%==3 (goto compilesteamvr)
+if %GameName%==3 (goto compilesteamvr)
 ::if %GameName%==4 (goto compiledota2)
 
 :compilehla
@@ -121,12 +124,14 @@ if defined customhladirectory (
         goto compilehla
     )
 ) else (
-    :: Uh oh! Didn't find it in the directory, manually have them put in the directory.
-    echo.
-    echo Couldn't find Half-Life: Alyx installed in the Steam directory.
-    echo Please enter your Half-Life: Alyx directory here.
-    echo.
-    set /P "hla_dir="
+    if not exist "%hla_dir%\game\bin\win64\resourcecompiler.exe" (
+        :: Uh oh! Didn't find it in the directory, manually have them put in the directory.
+        echo.
+        echo Couldn't find Half-Life: Alyx installed in the Steam directory.
+        echo Please enter your Half-Life: Alyx directory here.
+        echo.
+        set /P "hla_dir="
+    )
 )
 if exist "%hla_dir%\game\bin\win64\resourcecompiler.exe" (
     echo Directory exists. Continuing...
@@ -163,7 +168,7 @@ for /f "usebackq tokens=1,2,*" %%i in (`reg query "HKCU\Software\Valve\Steam" /v
 set steampath=%steampath:/=\%
 if not exist "%steampath%\steam.exe" (echo Couldn't find the steam directory. Do you have it installed?)
 
-:: Check if the steam directory has Half-Life: Alyx to make life easier.
+:: Check if the steam directory has s&box to make life easier.
 if exist "%steampath%\steamapps\common\sbox\" (
     echo Found s^&box inside of your Steam directory. Continuing..
 	set "sbox_dir=%steampath%\steamapps\common\sbox\"
@@ -178,12 +183,14 @@ if defined customsboxdirectory (
         goto compilesbox
     )
 ) else (
-    :: Uh oh! Didn't find it in the directory, manually have them put in the directory.
-    echo.
-    echo Couldn't find s^box installed in the Steam directory.
-    echo Please enter your s^box directory here.
-    echo.
-    set /P "sbox_dir="
+    if not exist "%sbox_dir%\bin\win64\resourcecompiler.exe" (
+        :: Uh oh! Didn't find it in the directory, manually have them put in the directory.
+        echo.
+        echo Couldn't find s^box installed in the Steam directory.
+        echo Please enter your s^box directory here.
+        echo.
+        set /P "sbox_dir="
+    )
 )
 if exist "%sbox_dir%\bin\win64\resourcecompiler.exe" (
     echo Directory exists. Continuing...
@@ -215,7 +222,62 @@ echo All maps finished.
 goto end
 
 :compilesteamvr
-:: TODO: Compiling settings for SteamVR
+:: Steam directory check
+for /f "usebackq tokens=1,2,*" %%i in (`reg query "HKCU\Software\Valve\Steam" /v "SteamPath"`) do set "steampath=%%~k"
+set steampath=%steampath:/=\%
+if not exist "%steampath%\steam.exe" (echo Couldn't find the steam directory. Do you have it installed?)
+
+:: Check if the steam directory has SteamVR to make life easier.
+if exist "%steampath%\steamapps\common\SteamVR\" (
+    echo Found SteamVR inside of your Steam directory. Continuing..
+	set "steamvr_dir=%steampath%\steamapps\common\SteamVR\"
+)
+if defined customsteamvrdirectory (
+    if exist "%customsteamvrdirectory%\tools\steamvr_environments\game\bin\win64\resourcecompiler.exe" (
+        echo Custom directory found.
+        set "steamvr_dir=%customsteamvrdirectory%"
+    ) else (
+        echo You put in a custom directory but it didn't work.
+        echo Restarting..
+        goto compilesteamvr
+    )
+) else (
+    if not exist "%steamvr_dir%\tools\steamvr_environments\game\bin\win64\resourcecompiler.exe" (
+        :: Uh oh! Didn't find it in the directory, manually have them put in the directory.
+        echo.
+        echo Couldn't find SteamVR installed in the Steam directory.
+        echo Please enter your SteamVR directory here.
+        echo.
+        set /P "steamvr_dir="
+    )
+)
+if exist "%steamvr_dir%\tools\steamvr_environments\game\bin\win64\resourcecompiler.exe" (
+    echo Directory exists. Continuing...
+    echo.
+) else (
+    echo Couldn't find the resourcecompiler in that directory.
+    echo Restarting..
+    goto compilesteamvr
+)
+
+echo Please enter the directory to the maps folder that you want to compile.
+set /P map_dir=
+
+if not exist "%map_dir%" (
+    echo That directory does not exist.. Restarting.
+    goto compilesbox
+)
+
+set /A numberofcompiles=0
+for %%i in ("%map_dir%\*.vmap") do (
+    set /A numberofcompiles=!numberofcompiles! + 1
+    echo Starting compile !numberofcompiles!..
+    start /WAIT call compile_map.bat %SetCompileRes% steamvr "%%i" "%steamvr_dir%"
+    echo Done. Moving to the next map.
+    echo.
+)
+echo.
+echo All maps finished.
 goto end
 
 :compiledota2

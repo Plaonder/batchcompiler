@@ -29,7 +29,7 @@ goto end
 goto end
 
 :compilesteamvr
-::TODO: Compiling settings for SteamVR
+%GameDirectory%\tools\steamvr_environments\game\bin\win64\resourcecompiler.exe -fshallow -maxtextureres 256 -dxlevel 110 -quiet -unbufferedio -noassert -i %MapDirectory% -world -bakelighting -lightmapMaxResolution %CompileResolution% -vrad3 -lightmapDoWeld -lightmapVRadQuality 2 -lightmapLocalCompile -lightmapCompressionDisabled 0 -phys -vis -breakpad -nompi -nop4
 goto end
 
 :compiledota2
