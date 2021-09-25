@@ -25,7 +25,7 @@ goto end
 
 :: Edit this if you want to change the s&box compile settings
 :compilesbox
-%GameDirectory%\bin\win64\resourcecompiler.exe -fshallow -maxtextureres 256 -dxlevel 110 -quiet -unbufferedio -noassert -i %MapDirectory% -world -bakelighting -lightmapMaxResolution %CompileResolution% -vrad3 -lightmapDoWeld -lightmapVRadQuality 2 -lightmapLocalCompile -lightmapUseAllThreads -lightmapCompressionDisabled 0 -phys -vis -nav -sareverb -sapaths -breakpad -nompi -nop4 -outroot %GameDirectory%
+%GameDirectory%\bin\win64\resourcecompiler.exe -fshallow -maxtextureres 256 -dxlevel 110 -quiet -unbufferedio -noassert -i %MapDirectory% -world -bakelighting -lightmapMaxResolution %CompileResolution% -vrad3 -lightmapDoWeld -lightmapVRadQuality 2 -lightmapLocalCompile -lightmapUseAllThreads -lightmapCompressionDisabled 0 -phys -vis -nav -sareverb -sapaths -breakpad -nompi -nop4 -outroot %GameDirectory%\addons
 goto end
 
 :compilesteamvr
