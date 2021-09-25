@@ -33,7 +33,7 @@ goto end
 goto end
 
 :compiledota2
-::TODO: Compiling settings for SteamVR
+::TODO: Compiling settings for Dota 2
 goto end
 
 :end
