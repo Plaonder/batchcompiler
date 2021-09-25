@@ -23,7 +23,7 @@ goto end
 goto end
 
 :compilesbox
-::TODO: Compiling settings for s&box
+%GameDirectory%\bin\win64\resourcecompiler.exe -fshallow -maxtextureres 256 -dxlevel 110 -quiet -unbufferedio -noassert -i %MapDirectory% -world -bakelighting -lightmapMaxResolution %CompileResolution% -vrad3 -lightmapDoWeld -lightmapVRadQuality 2 -lightmapLocalCompile -lightmapUseAllThreads -lightmapCompressionDisabled 0 -phys -vis -nav -sareverb -sapaths -breakpad -nompi -nop4
 goto end
 
 :compilesteamvr
@@ -35,4 +35,5 @@ goto end
 goto end
 
 :end
+pause
 exit

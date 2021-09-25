@@ -4,7 +4,7 @@ TITLE Batch Map Compiler
 
 :: Custom directories if you don't want to manually put in your game directory
 set customhladirectory=O:\Games\SteamLibrary\steamapps\common\Half-Life Alyx
-set customsboxdirectory=
+set customsboxdirectory=O:\Games\SteamLibrary\steamapps\common\sbox
 ::set customsteamvrdirectory=
 ::set customdota2directory=
 
@@ -14,8 +14,8 @@ goto gamequestions
 :: Ask which game they're compiling for
 echo What game are you compiling for?
 echo 1: Half-Life: Alyx
-echo (s^&box, SteamVR, and Dota 2 compiling will be supported soon.)
-::echo 2: s^&box
+echo 2: s^&box
+echo (SteamVR, and Dota 2 compiling will be supported soon.)
 ::echo 3: SteamVR
 ::echo 4: Dota 2
 echo.
@@ -167,21 +167,31 @@ if not exist "%steampath%\steam.exe" (echo Couldn't find the steam directory. Do
 if exist "%steampath%\steamapps\common\sbox\" (
     echo Found s^&box inside of your Steam directory. Continuing..
 	set "sbox_dir=%steampath%\steamapps\common\sbox\"
+)
+if defined customsboxdirectory (
+    if exist "%customsboxdirectory%\bin\win64\resourcecompiler.exe" (
+        echo Custom directory found.
+        set "sbox_dir=%customsboxdirectory%"
+    ) else (
+        echo You put in a custom directory but it didn't work.
+        echo Restarting..
+        goto compilesbox
+    )
 ) else (
     :: Uh oh! Didn't find it in the directory, manually have them put in the directory.
     echo.
-    echo Couldn't find s^&box installed in the Steam directory.
-    echo Please enter your s^&box directory here.
+    echo Couldn't find s^box installed in the Steam directory.
+    echo Please enter your s^box directory here.
     echo.
     set /P "sbox_dir="
 )
-if exist "%sbox_dir%\game\bin\win64\resourcecompiler.exe" (
+if exist "%sbox_dir%\bin\win64\resourcecompiler.exe" (
     echo Directory exists. Continuing...
     echo.
 ) else (
     echo Couldn't find the resourcecompiler in that directory.
     echo Restarting..
-    goto compilehla
+    goto compilesbox
 )
 
 echo Please enter the directory to the maps folder that you want to compile.
@@ -189,7 +199,7 @@ set /P map_dir=
 
 if not exist "%map_dir%" (
     echo That directory does not exist.. Restarting.
-    goto compilehla
+    goto compilesbox
 )
 
 set /A numberofcompiles=0
