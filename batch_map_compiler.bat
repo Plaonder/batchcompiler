@@ -159,7 +159,49 @@ goto end
 
 :compilesbox
 :: Steam directory check
+for /f "usebackq tokens=1,2,*" %%i in (`reg query "HKCU\Software\Valve\Steam" /v "SteamPath"`) do set "steampath=%%~k"
+set steampath=%steampath:/=\%
+if not exist "%steampath%\steam.exe" (echo Couldn't find the steam directory. Do you have it installed?)
 
+:: Check if the steam directory has Half-Life: Alyx to make life easier.
+if exist "%steampath%\steamapps\common\sbox\" (
+    echo Found s^&box inside of your Steam directory. Continuing..
+	set "sbox_dir=%steampath%\steamapps\common\sbox\"
+) else (
+    :: Uh oh! Didn't find it in the directory, manually have them put in the directory.
+    echo.
+    echo Couldn't find s^&box installed in the Steam directory.
+    echo Please enter your s^&box directory here.
+    echo.
+    set /P "sbox_dir="
+)
+if exist "%sbox_dir%\game\bin\win64\resourcecompiler.exe" (
+    echo Directory exists. Continuing...
+    echo.
+) else (
+    echo Couldn't find the resourcecompiler in that directory.
+    echo Restarting..
+    goto compilehla
+)
+
+echo Please enter the directory to the maps folder that you want to compile.
+set /P map_dir=
+
+if not exist "%map_dir%" (
+    echo That directory does not exist.. Restarting.
+    goto compilehla
+)
+
+set /A numberofcompiles=0
+for %%i in ("%map_dir%\*.vmap") do (
+    set /A numberofcompiles=!numberofcompiles! + 1
+    echo Starting compile !numberofcompiles!..
+    start /WAIT call compile_map.bat %SetCompileRes% sbox "%%i" "%sbox_dir%"
+    echo Done. Moving to the next map.
+    echo.
+)
+echo.
+echo All maps finished.
 goto end
 
 :compilesteamvr
