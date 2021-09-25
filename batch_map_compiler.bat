@@ -1,4 +1,5 @@
 @echo off
+setlocal enabledelayedexpansion
 TITLE Batch Map Compiler
 goto gamequestions
 
@@ -24,10 +25,13 @@ if not defined GameName (
 
 :: Go through the choices
 if %GameName%==quit (goto end)
-if %GameName%==1 (goto compilehla)
-::if %GameName%==2 (goto compilesbox) 
-::if %GameName%==3 (goto compilesteamvr)
-::if %GameName%==4 (goto compiledota2)
+if %GameName%==1 (
+    echo Half-Life: Alyx
+    goto compileresolution
+)
+::if %GameName%==2 (echo s^&box) 
+::if %GameName%==3 (echo SteamVR)
+::if %GameName%==4 (echo Dota 2)
 :: Wrong number? Restart.
 echo.
 echo Unknown choice, please type 1 or 2
@@ -36,8 +40,58 @@ set "GameName="
 goto gamequestions
 
 :: Compiling settings for hla
-:compilehla
+:compileresolution
 
+::Compile resolutions!
+echo.
+echo Please enter the compile resolution you would like to use.
+echo 1: 512x512
+echo 2: 1024x1024
+echo 3: 2048x2048
+echo 4: 4096x4096
+echo 5: 8192x8192
+echo 6: 16384x16384
+echo.
+
+set /P CompileResolution=
+
+if %CompileResolution%==1 (
+    set SetCompileRes=512
+    goto gotogame
+)
+if %CompileResolution%==2 (
+    set SetCompileRes=1024
+    goto gotogame
+)
+if %CompileResolution%==3 (
+    set SetCompileRes=2048
+    goto gotogame
+)
+if %CompileResolution%==4 (
+    set SetCompileRes=4096
+    goto gotogame
+)
+if %CompileResolution%==5 (
+    set SetCompileRes=8192
+    goto gotogame
+)
+if %CompileResolution%==6 (
+    set SetCompileRes=16384
+    goto gotogame
+)
+echo.
+echo Incorrect value given, please try again
+goto compileresolution
+
+
+:gotogame
+:: Go through the choices again
+if %GameName%==1 (goto compilehla)
+::if %GameName%==2 (goto compilesbox) 
+::if %GameName%==3 (goto compilesteamvr)
+::if %GameName%==4 (goto compiledota2)
+
+:compilehla
 :: Steam directory check
 for /f "usebackq tokens=1,2,*" %%i in (`reg query "HKCU\Software\Valve\Steam" /v "SteamPath"`) do set "steampath=%%~k"
 set steampath=%steampath:/=\%
@@ -54,14 +108,15 @@ if exist "%steampath%\steamapps\common\Half-Life Alyx\" (
     echo Please enter your Half-Life: Alyx directory here.
     echo.
     set /P "hla_dir="
-    if not exist "%hla_dir%\game\bin\win64\resourcecompiler.exe" (
-        echo Couldn't find the resourcecompiler in that directory.
-        echo Restarting..
-        goto compilehla
-    )
 )
-echo Directory exists! Continuing...
-echo.
+if exist "%hla_dir%\game\bin\win64\resourcecompiler.exe" (
+    echo Directory exists! Continuing...
+    echo.
+) else (
+    echo Couldn't find the resourcecompiler in that directory.
+    echo Restarting..
+    goto compilehla
+)
 
 echo Please enter the directory to the maps folder that you want to compile.
 set /P map_dir=
@@ -71,9 +126,11 @@ if not exist "%map_dir%" (
     goto compilehla
 )
 
+set /A numberofcompiles=0
 for %%i in ("%map_dir%\*.vmap") do (
-    echo Starting compile..
-    start /WAIT call compile_map.bat 512 hlaaa "%%i" "%hla_dir%"
+    set /A numberofcompiles=!numberofcompiles! + 1
+    echo Starting compile !numberofcompiles!..
+    start /WAIT call compile_map.bat %SetCompileRes% hla "%%i" "%hla_dir%"
     echo Done! Moving to the next map.
     echo.
 )
