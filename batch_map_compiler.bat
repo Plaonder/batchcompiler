@@ -1,6 +1,13 @@
 @echo off
 setlocal enabledelayedexpansion
 TITLE Batch Map Compiler
+
+:: Custom directories if you don't want to manually put in your game directory
+set customhladirectory=O:\Games\SteamLibrary\steamapps\common\Half-Life Alyx
+set customsboxdirectory=
+::set customsteamvrdirectory=
+::set customdota2directory=
+
 goto gamequestions
 
 :gamequestions
@@ -13,11 +20,10 @@ echo (s^&box, SteamVR, and Dota 2 compiling will be supported soon.)
 ::echo 4: Dota 2
 echo.
 set /P GameName=
-echo.
 
 if not defined GameName (
     echo.
-    echo Please type something!
+    echo Please type something.
     echo.
     set "GameName="
     goto gamequestions
@@ -29,7 +35,10 @@ if %GameName%==1 (
     echo Half-Life: Alyx
     goto compileresolution
 )
-::if %GameName%==2 (echo s^&box) 
+if %GameName%==2 (
+    echo s^&box
+    goto compileresolution
+) 
 ::if %GameName%==3 (echo SteamVR)
 ::if %GameName%==4 (echo Dota 2)
 :: Wrong number? Restart.
@@ -87,7 +96,7 @@ goto compileresolution
 :gotogame
 :: Go through the choices again
 if %GameName%==1 (goto compilehla)
-::if %GameName%==2 (goto compilesbox) 
+if %GameName%==2 (goto compilesbox) 
 ::if %GameName%==3 (goto compilesteamvr)
 ::if %GameName%==4 (goto compiledota2)
 
@@ -95,12 +104,22 @@ if %GameName%==1 (goto compilehla)
 :: Steam directory check
 for /f "usebackq tokens=1,2,*" %%i in (`reg query "HKCU\Software\Valve\Steam" /v "SteamPath"`) do set "steampath=%%~k"
 set steampath=%steampath:/=\%
-if not exist "%steampath%\steam.exe" (echo Couldn't find the steam directory! Do you have it installed?)
+if not exist "%steampath%\steam.exe" (echo Couldn't find the steam directory. Do you have it installed?)
 
 :: Check if the steam directory has Half-Life: Alyx to make life easier.
 if exist "%steampath%\steamapps\common\Half-Life Alyx\" (
-    echo Found Half-Life Alyx inside of your Steam directory! Continuing..
+    echo Found Half-Life Alyx inside of your Steam directory. Continuing..
 	set "hla_dir=%steampath%\steamapps\common\Half-Life Alyx\"
+) 
+if defined customhladirectory (
+    if exist "%customhladirectory%\game\bin\win64\resourcecompiler.exe" (
+        echo Custom directory found.
+        set "hla_dir=%customhladirectory%"
+    ) else (
+        echo You put in a custom directory but it didn't work.
+        echo Restarting..
+        goto compilehla
+    )
 ) else (
     :: Uh oh! Didn't find it in the directory, manually have them put in the directory.
     echo.
@@ -110,7 +129,7 @@ if exist "%steampath%\steamapps\common\Half-Life Alyx\" (
     set /P "hla_dir="
 )
 if exist "%hla_dir%\game\bin\win64\resourcecompiler.exe" (
-    echo Directory exists! Continuing...
+    echo Directory exists. Continuing...
     echo.
 ) else (
     echo Couldn't find the resourcecompiler in that directory.
@@ -131,7 +150,7 @@ for %%i in ("%map_dir%\*.vmap") do (
     set /A numberofcompiles=!numberofcompiles! + 1
     echo Starting compile !numberofcompiles!..
     start /WAIT call compile_map.bat %SetCompileRes% hla "%%i" "%hla_dir%"
-    echo Done! Moving to the next map.
+    echo Done. Moving to the next map.
     echo.
 )
 echo.
@@ -139,7 +158,8 @@ echo All maps finished.
 goto end
 
 :compilesbox
-:: TODO: Compiling settings for sbox
+:: Steam directory check
+
 goto end
 
 :compilesteamvr
