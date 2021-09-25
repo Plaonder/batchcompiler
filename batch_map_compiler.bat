@@ -54,6 +54,11 @@ if exist "%steampath%\steamapps\common\Half-Life Alyx\" (
     echo Please enter your Half-Life: Alyx directory here.
     echo.
     set /P "hla_dir="
+    if not exist "%hla_dir%\game\bin\win64\resourcecompiler.exe" (
+        echo Couldn't find the resourcecompiler in that directory.
+        echo Restarting..
+        goto compilehla
+    )
 )
 echo Directory exists! Continuing...
 echo.
@@ -66,10 +71,9 @@ if not exist "%map_dir%" (
     goto compilehla
 )
 
-
 for %%i in ("%map_dir%\*.vmap") do (
     echo Starting compile..
-    start /WAIT call compile_map.bat 512 hla "%%i" "%hla_dir%"
+    start /WAIT call compile_map.bat 512 hlaaa "%%i" "%hla_dir%"
     echo Done! Moving to the next map.
     echo.
 )
